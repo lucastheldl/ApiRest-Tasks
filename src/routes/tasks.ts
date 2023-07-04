@@ -6,9 +6,9 @@ import { randomUUID } from "crypto";
 export async function taskRoutes(app: FastifyInstance) {
   // Route to get all tasks
 
-  app.get("/", async (request, reply) => {
-    const test = await knex("tasks").select("*");
-    return test;
+  app.get("/", async () => {
+    const tasks = await knex("tasks").select("*");
+    return tasks;
   });
 
   // Route to post a task
@@ -30,8 +30,31 @@ export async function taskRoutes(app: FastifyInstance) {
   });
 
   // Route to get a task
+  app.get("/:id", async (request) => {
+    const getTaskParamsSchema = z.object({
+      id: z.string().uuid(),
+    });
+    const { id } = getTaskParamsSchema.parse(request.params);
+
+    const task = await knex("tasks").where("id", id).first();
+
+    return { task };
+  });
 
   // Route to mark a task as completed
+  app.patch("/:id", async (request) => {
+    const getTaskParamsSchema = z.object({
+      id: z.string().uuid(),
+    });
+    const { id } = getTaskParamsSchema.parse(request.params);
+    const date = knex.fn.now();
+
+    const task = await knex("tasks").where("id", id).update({
+      completed_at: date,
+    });
+
+    return { task };
+  });
 
   // Route to edit a task
 
