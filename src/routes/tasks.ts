@@ -67,6 +67,31 @@ export async function taskRoutes(app: FastifyInstance) {
   });
 
   // Route to edit a task
+  app.put("/:id", async (request) => {
+    const getTaskParamsSchema = z.object({
+      id: z.string().uuid(),
+      title: z.string().optional(),
+      body: z.string().optional(),
+    });
+    const getTaskBodySchema = z.object({
+      title: z.string().optional(),
+      description: z.string().optional(),
+    });
+
+    const { id } = getTaskParamsSchema.parse(request.params);
+    const { title, description } = getTaskBodySchema.parse(request.body);
+    console.log(title);
+
+    const date = knex.fn.now();
+
+    const updatedTask = await knex("tasks").where("id", id).update({
+      title,
+      description,
+      updated_at: date,
+    });
+
+    return { updatedTask };
+  });
 
   // Route to remove a task
   app.delete("/:id", async (request, reply) => {
