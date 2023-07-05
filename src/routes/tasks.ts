@@ -42,26 +42,22 @@ export async function taskRoutes(app: FastifyInstance) {
   });
 
   // Route to mark a task as completed
-  app.patch("/:id", async (request) => {
+  app.patch("/:id/complete", async (request) => {
     const getTaskParamsSchema = z.object({
       id: z.string().uuid(),
     });
-    // const getTaskSchema = z.object({
-    // completed_at: z.string(),
-    // });
-    const { id } = getTaskParamsSchema.parse(request.params);
 
-    // const task = getTaskSchema.parse(await knex("tasks").where("id", id));
+    const { id } = getTaskParamsSchema.parse(request.params);
 
     const date = knex.fn.now();
 
-    // if (task.completed_at === null) {
-    // date = knex.fn.now();
-    // }
+    const task = await knex("tasks").where("id", id).first();
 
-    const updatedTask = await knex("tasks").where("id", id).update({
-      completed_at: date,
-    });
+    const updatedTask = await knex("tasks")
+      .where("id", id)
+      .update({
+        completed_at: task.completed_at === null ? date : null,
+      });
 
     return { updatedTask };
   });
@@ -84,11 +80,14 @@ export async function taskRoutes(app: FastifyInstance) {
 
     const date = knex.fn.now();
 
-    const updatedTask = await knex("tasks").where("id", id).update({
-      title,
-      description,
-      updated_at: date,
-    });
+    const updatedTask = await knex("tasks").where("id", id).update(
+      {
+        title,
+        description,
+        updated_at: date,
+      },
+      ["title", "description"]
+    );
 
     return { updatedTask };
   });
