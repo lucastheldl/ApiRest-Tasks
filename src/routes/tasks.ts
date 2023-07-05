@@ -46,17 +46,37 @@ export async function taskRoutes(app: FastifyInstance) {
     const getTaskParamsSchema = z.object({
       id: z.string().uuid(),
     });
+    // const getTaskSchema = z.object({
+    // completed_at: z.string(),
+    // });
     const { id } = getTaskParamsSchema.parse(request.params);
+
+    // const task = getTaskSchema.parse(await knex("tasks").where("id", id));
+
     const date = knex.fn.now();
 
-    const task = await knex("tasks").where("id", id).update({
+    // if (task.completed_at === null) {
+    // date = knex.fn.now();
+    // }
+
+    const updatedTask = await knex("tasks").where("id", id).update({
       completed_at: date,
     });
 
-    return { task };
+    return { updatedTask };
   });
 
   // Route to edit a task
 
   // Route to remove a task
+  app.delete("/:id", async (request, reply) => {
+    const getTaskParamsSchema = z.object({
+      id: z.string().uuid(),
+    });
+    const { id } = getTaskParamsSchema.parse(request.params);
+
+    await knex("tasks").where("id", id).del();
+
+    return reply.status(200).send();
+  });
 }
