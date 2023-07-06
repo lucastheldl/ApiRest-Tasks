@@ -8,7 +8,7 @@ export async function taskRoutes(app: FastifyInstance) {
 
   app.get("/", async () => {
     const tasks = await knex("tasks").select("*");
-    return tasks;
+    return { tasks };
   });
 
   // Route to post a task
