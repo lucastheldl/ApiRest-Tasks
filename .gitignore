@@ -1,9 +1,12 @@
+# Dependencies
 node_modules
 
+#Enviroment
 .env
 .env.test
 
+#Build
 build
 
-db/app.db
-db/test.db
+# Database
+db/*.db
